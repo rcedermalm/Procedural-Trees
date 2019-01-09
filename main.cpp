@@ -124,7 +124,8 @@ int main()
     GLint objColourLoc = glGetUniformLocation(passThroughShader, "faceColour");
 
     /********** Build up tree structure ***********/
-    Tree proceduralTree();
+    Tree* proceduralTree = new Tree();
+    proceduralTree->createTreeFromLindenmayerSystem();
 
     /****************************************************/
     /******************* RENDER LOOP ********************/
@@ -155,20 +156,7 @@ int main()
         glUniform3f(objColourLoc, branchColour.x, branchColour.y, branchColour.z);
 
         /**************** RENDER STUFF ****************/
-
-        branchCylinder.render();
-
-        updateModelMatrix(0, initialLength/2, 1.f, model, modelLoc);
-        branchSphere.render();
-
-        updateModelMatrix(40, initialLength/2, 0.7, model, modelLoc);
-        branchCylinder.render();
-
-        updateModelMatrix(0, initialLength/2, 1.f, model, modelLoc);
-        branchSphere.render();
-
-        updateModelMatrix(-40, initialLength/2, 0.7, model, modelLoc);
-        branchCylinder.render();
+        proceduralTree->renderTree(branchCylinder, branchSphere, model, modelLoc);
 
         // Swap front and back buffers
         glEnable(GL_CULL_FACE);
@@ -177,6 +165,8 @@ int main()
 
         glfwPollEvents();
     }
+
+    delete proceduralTree;
 
     // Terminate GLFW, clearing any resources allocated by GLFW.
     glfwTerminate();
