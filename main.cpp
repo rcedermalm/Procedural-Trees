@@ -16,6 +16,7 @@
 #include "ShaderProgram.hpp"
 #include "Camera.h"
 #include "MeshObject.h"
+#include "Tree.h"
 
 /*******************************************
  ****** FUNCTION/VARIABLE DECLARATIONS *****
@@ -106,7 +107,6 @@ int main()
     passThroughShader();
 
     /****************** Models ********************/
-
     MeshObject branchCylinder;
     branchCylinder.readOBJ("../objects/cylinder.obj");
 
@@ -116,12 +116,15 @@ int main()
     MeshObject branchSphere;
     branchSphere.createSphere(initialRadius * 1.1f, 4);
 
-    /**************** Uniform variables **********************/
+    /************** Uniform variables *************/
     GLint modelLoc = glGetUniformLocation(passThroughShader, "model");
     GLint viewLoc = glGetUniformLocation(passThroughShader, "view");
     GLint projLoc = glGetUniformLocation(passThroughShader, "projection");
 
     GLint objColourLoc = glGetUniformLocation(passThroughShader, "faceColour");
+
+    /********** Build up tree structure ***********/
+    Tree proceduralTree();
 
     /****************************************************/
     /******************* RENDER LOOP ********************/

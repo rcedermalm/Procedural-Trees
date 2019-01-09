@@ -104,7 +104,7 @@ message( "All include dirs: ${ALL_INCLUDES}")
 file(GLOB_RECURSE PROJECT_CPP_FILES ${PROJECT_SOURCES_DIR}/*.cpp)
 
 # Adds executable files
-set(SOURCE_FILES main.cpp ${PROJECT_CPP_FILES} include/ShaderProgram.hpp include/FileReader.hpp include/Camera.h include/MeshObject.h src/MeshObject.cpp)
+set(SOURCE_FILES main.cpp ${PROJECT_CPP_FILES} include/ShaderProgram.hpp include/FileReader.hpp include/Camera.h include/MeshObject.h src/MeshObject.cpp include/Tree.cpp include/Tree.h)
 add_executable(Procedural_Trees ${SOURCE_FILES})
 
 # Links libraries
