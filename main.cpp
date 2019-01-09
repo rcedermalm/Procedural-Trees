@@ -16,7 +16,6 @@
 #include "ShaderProgram.hpp"
 #include "Camera.h"
 #include "MeshObject.h"
-#include "Texture.h"
 
 /*******************************************
  ****** FUNCTION/VARIABLE DECLARATIONS *****
@@ -39,6 +38,9 @@ bool firstMouse = true;
 // Time variables
 float deltaTime = 0.0f;	// time between current frame and last frame
 float lastFrame = 0.0f;
+
+// Colour variables
+glm::vec3 branchColour = glm::vec3(102.f/255.f, 51.f/255.f, 0.f);
 
 /*******************************************
  **************    MAIN     ****************
@@ -95,20 +97,28 @@ int main()
     /***************** Shaders ********************/
     // Build and compile the shader program
     std::string vertexFilename = "../shaders/passThrough.vert";
+    std::string geometryFilename = "../shaders/passThrough.gs";
     std::string fragmentFilename = "../shaders/passThrough.frag";
-    ShaderProgram passThroughShader(vertexFilename, "", "", "", fragmentFilename);
+    ShaderProgram passThroughShader(vertexFilename, "", "", geometryFilename, fragmentFilename);
     passThroughShader();
 
     /****************** Models ********************/
 
-    //MeshObject trex;
-    //trex.readOBJ("../objects/trex.obj");
+    MeshObject branchCylinder;
+    branchCylinder.readOBJ("../objects/cylinder.obj");
 
-    //Texture textureTrex = Texture("../textures/trex.tga");
+    float initialRadius = 1.0f;
+    float initialLength = 2.5f;
+
+    MeshObject branchSphere;
+    branchSphere.createSphere(initialRadius * 1.1f, 4);
 
     /**************** Uniform variables **********************/
+    GLint modelLoc = glGetUniformLocation(passThroughShader, "model");
     GLint viewLoc = glGetUniformLocation(passThroughShader, "view");
     GLint projLoc = glGetUniformLocation(passThroughShader, "projection");
+
+    GLint objColourLoc = glGetUniformLocation(passThroughShader, "faceColour");
 
     /****************************************************/
     /******************* RENDER LOOP ********************/
@@ -127,15 +137,20 @@ int main()
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
         // Create camera transformation
+        glm::mat4 model;
         glm::mat4 view = camera.GetViewMatrix();
         glm::mat4 projection = glm::perspective(glm::radians(camera.Zoom), (float)WIDTH/(float)HEIGHT, 0.1f, 100.0f);
 
+        glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
         glUniformMatrix4fv(viewLoc, 1, GL_FALSE, glm::value_ptr(view));
         glUniformMatrix4fv(projLoc, 1, GL_FALSE, glm::value_ptr(projection));
 
         /**************** RENDER STUFF ****************/
-        //glBindTexture( GL_TEXTURE_2D, textureTrex.textureID);
-        //trex.render();
+        glUniform3f(objColourLoc, branchColour.x, branchColour.y, branchColour.z);
+        branchCylinder.render();
+        model = glm::translate(model, glm::vec3(0.f, initialLength, 0.f));
+        glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
+        branchSphere.render();
 
         // Swap front and back buffers
         glEnable(GL_CULL_FACE);
