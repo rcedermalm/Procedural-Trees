@@ -26,6 +26,9 @@ void mouse_callback(GLFWwindow* window, double xpos, double ypos);
 void scroll_callback(GLFWwindow* window, double xoffset, double yoffset);
 void processInput(GLFWwindow *window);
 
+void updateModelMatrix(float angles, float translationLength, float scaleAmount,
+                       glm::mat4& model, GLint modelLoc);
+
 // Window dimensions
 const GLuint WIDTH = 1000, HEIGHT = 600;
 
@@ -108,7 +111,7 @@ int main()
     branchCylinder.readOBJ("../objects/cylinder.obj");
 
     float initialRadius = 1.0f;
-    float initialLength = 2.5f;
+    float initialLength = 5.f;
 
     MeshObject branchSphere;
     branchSphere.createSphere(initialRadius * 1.1f, 4);
@@ -136,21 +139,33 @@ int main()
         glClearColor(0.3f, 0.3f, 0.3f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-        // Create camera transformation
+        // Create camera and model transformation
         glm::mat4 model;
         glm::mat4 view = camera.GetViewMatrix();
         glm::mat4 projection = glm::perspective(glm::radians(camera.Zoom), (float)WIDTH/(float)HEIGHT, 0.1f, 100.0f);
 
+        // Send uniforms to GPU
         glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
         glUniformMatrix4fv(viewLoc, 1, GL_FALSE, glm::value_ptr(view));
         glUniformMatrix4fv(projLoc, 1, GL_FALSE, glm::value_ptr(projection));
 
-        /**************** RENDER STUFF ****************/
         glUniform3f(objColourLoc, branchColour.x, branchColour.y, branchColour.z);
+
+        /**************** RENDER STUFF ****************/
+
         branchCylinder.render();
-        model = glm::translate(model, glm::vec3(0.f, initialLength, 0.f));
-        glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
+
+        updateModelMatrix(0, initialLength/2, 1.f, model, modelLoc);
         branchSphere.render();
+
+        updateModelMatrix(40, initialLength/2, 0.7, model, modelLoc);
+        branchCylinder.render();
+
+        updateModelMatrix(0, initialLength/2, 1.f, model, modelLoc);
+        branchSphere.render();
+
+        updateModelMatrix(-40, initialLength/2, 0.7, model, modelLoc);
+        branchCylinder.render();
 
         // Swap front and back buffers
         glEnable(GL_CULL_FACE);
@@ -163,6 +178,16 @@ int main()
     // Terminate GLFW, clearing any resources allocated by GLFW.
     glfwTerminate();
     return 0;
+}
+
+
+void updateModelMatrix(float angles, float translationLength, float scaleAmount,
+                       glm::mat4& model, GLint modelLoc) {
+    model = glm::rotate(model, glm::radians(angles), glm::vec3(0,0,1));
+    model = glm::translate(model, glm::vec3(0.f, translationLength, 0.f));
+    model = glm::scale(model, glm::vec3(scaleAmount));
+
+    glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
 }
 
 void processInput(GLFWwindow *window) {
