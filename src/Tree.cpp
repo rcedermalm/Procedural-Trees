@@ -5,22 +5,8 @@ Tree::~Tree() {
     destroyNode(root);
 }
 
-void Tree::destroyNode(Node *node) {
-    if (node) {
-        destroyNode(node->firstBranch);
-        destroyNode(node->secondBranch);
-        destroyNode(node->thirdBranch);
-        delete node;
-    }
-}
-
-void Tree::createTreeFromLindenmayerSystem(std::string axiom, int noOfIterations) {
-
-    // TODO Evaluation of the L-System string using given rules..
-    std::string finalSystem = axiom;
-
-    /**************************************************************/
-    /** Creation of the tree using the evaluated L-System string **/
+void Tree::createTreeFromLindenmayerSystem(std::string axiom, std::vector<std::pair<char, std::string>> constructors, int noOfIterations) {
+    std::string finalSystem = evaluateLindenmayerSystem(axiom, constructors,noOfIterations);
 
     Node* current = root;
     float rotAngle = 0.f;
@@ -32,7 +18,6 @@ void Tree::createTreeFromLindenmayerSystem(std::string axiom, int noOfIterations
         int noOfBranches = current->getNumberOfBranches();
         switch(finalSystem[i]) {
             case 'F':
-                std::cout << "F";
                 if(fabs(rotAngle) > EPSILON) {
                     scaleFactor = initialScaleFactor;
                 }
@@ -56,19 +41,15 @@ void Tree::createTreeFromLindenmayerSystem(std::string axiom, int noOfIterations
                 scaleFactor = 1.f;
                 break;
             case '+':
-                std::cout << "+";
                 rotAngle = initialRotationAngle;
                 break;
             case '-':
-                std::cout << "-";
                 rotAngle = -1.f * initialRotationAngle;
                 break;
             case '[':
-                std::cout << "[";
                 fallbacks.push_back(current);
                 break;
             case ']':
-                std::cout << "]";
                 current = fallbacks.back();
                 fallbacks.pop_back();
                 break;
@@ -101,6 +82,49 @@ void Tree::renderTree(MeshObject& branch, MeshObject& split, glm::mat4 model, GL
     renderNode(root->thirdBranch, branch, split, model, modelLoc);
 }
 
+void Tree::destroyNode(Node *node) {
+    if (node) {
+        destroyNode(node->firstBranch);
+        destroyNode(node->secondBranch);
+        destroyNode(node->thirdBranch);
+        delete node;
+    }
+}
+
+std::string Tree::evaluateLindenmayerSystem(std::string axiom, std::vector<std::pair<char, std::string>> constructors, int noOfIterations) {
+    int iter = 0;
+    std::string system = axiom;
+    std::string newSystem = "";
+
+    while(iter < noOfIterations) {
+        for(int i = 0; i < system.length(); i++){
+            bool addedConstructor = false;
+            for(int j = 0; j < constructors.size(); j++){
+                if(system[i] == constructors[j].first) {
+                    newSystem += constructors[j].second;
+                    addedConstructor = true;
+                }
+            }
+            if(!addedConstructor)
+                newSystem += system[i];
+
+        }
+        system = newSystem;
+        newSystem = "";
+        iter++;
+    }
+
+    return system;
+}
+
+void Tree::updateModelMatrix(float angles, glm::vec2 rotationAxis, float scaleAmount, glm::mat4 &model, GLint modelLoc) {
+    model = glm::rotate(model, glm::radians(angles), glm::vec3(rotationAxis.x, 0, rotationAxis.y));
+    model = glm::translate(model, glm::vec3(0.f, initialTranslationLength, 0.f));
+    model = glm::scale(model, glm::vec3(scaleAmount));
+
+    glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
+}
+
 void Tree::renderNode(Node *current_node, MeshObject &branch, MeshObject &split, glm::mat4 model, GLint modelLoc) {
     if(current_node == nullptr)
         return;
@@ -124,16 +148,10 @@ void Tree::renderNode(Node *current_node, MeshObject &branch, MeshObject &split,
     renderNode(current_node->firstBranch, branch, split, model, modelLoc);
     renderNode(current_node->secondBranch, branch, split, model, modelLoc);
     renderNode(current_node->thirdBranch, branch, split, model, modelLoc);
-
 }
 
-void Tree::updateModelMatrix(float angles, glm::vec2 rotationAxis, float scaleAmount, glm::mat4 &model, GLint modelLoc) {
-    model = glm::rotate(model, glm::radians(angles), glm::vec3(rotationAxis.x, 0, rotationAxis.y));
-    model = glm::translate(model, glm::vec3(0.f, initialTranslationLength, 0.f));
-    model = glm::scale(model, glm::vec3(scaleAmount));
 
-    glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
-}
+
 
 
 

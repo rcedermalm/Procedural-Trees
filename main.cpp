@@ -102,10 +102,10 @@ int main()
 
     /****************** Models ********************/
     MeshObject branchCylinder;
-    branchCylinder.readOBJ("../objects/cylinder.obj");
+    branchCylinder.readOBJ("../objects/smallcylinder.obj");
 
-    float initialRadius = 1.0f;
-    float initialLength = 5.f;
+    float initialRadius = 0.2f;
+    float initialLength = 1.f;
 
     MeshObject branchSphere;
     branchSphere.createSphere(initialRadius * 1.1f, 4);
@@ -118,9 +118,14 @@ int main()
     GLint objColourLoc = glGetUniformLocation(passThroughShader, "faceColour");
 
     /********** Build up tree structure ***********/
-    std::string l_system = "F[+F][-F[-F]F]F[+F][-F]";
-    Tree* proceduralTree = new Tree(initialLength/2, 40.f, 0.7f, objColourLoc);
-    proceduralTree->createTreeFromLindenmayerSystem(l_system, 1);
+    std::string axiom = "X";
+    std::vector<std::pair<char, std::string>> constructors = std::vector<std::pair<char, std::string>>();
+    constructors.push_back( std::pair<char, std::string>('F', "FF"));
+    constructors.push_back( std::pair<char, std::string>('X', "F-[[X]+X]+F[+FX]-X"));
+
+
+    Tree* proceduralTree = new Tree(initialLength/2,  22.5f, 0.7f, objColourLoc);
+    proceduralTree->createTreeFromLindenmayerSystem(axiom, constructors, 5);
 
     /****************************************************/
     /******************* RENDER LOOP ********************/
