@@ -27,14 +27,11 @@ void mouse_callback(GLFWwindow* window, double xpos, double ypos);
 void scroll_callback(GLFWwindow* window, double xoffset, double yoffset);
 void processInput(GLFWwindow *window);
 
-void updateModelMatrix(float angles, float translationLength, float scaleAmount,
-                       glm::mat4& model, GLint modelLoc);
-
 // Window dimensions
 const GLuint WIDTH = 1000, HEIGHT = 600;
 
 // Camera variables
-Camera camera(glm::vec3(0.0f, 0.0f, 20.0f));
+Camera camera(glm::vec3(0.0f, 10.0f, 50.0f));
 float lastX = WIDTH / 2.0f;
 float lastY = HEIGHT / 2.0f;
 bool firstMouse = true;
@@ -42,9 +39,6 @@ bool firstMouse = true;
 // Time variables
 float deltaTime = 0.0f;	// time between current frame and last frame
 float lastFrame = 0.0f;
-
-// Colour variables
-glm::vec3 branchColour = glm::vec3(102.f/255.f, 51.f/255.f, 0.f);
 
 /*******************************************
  **************    MAIN     ****************
@@ -124,7 +118,7 @@ int main()
     GLint objColourLoc = glGetUniformLocation(passThroughShader, "faceColour");
 
     /********** Build up tree structure ***********/
-    Tree* proceduralTree = new Tree();
+    Tree* proceduralTree = new Tree(initialLength/2, 40.f, 0.7f, objColourLoc);
     proceduralTree->createTreeFromLindenmayerSystem();
 
     /****************************************************/
@@ -153,8 +147,6 @@ int main()
         glUniformMatrix4fv(viewLoc, 1, GL_FALSE, glm::value_ptr(view));
         glUniformMatrix4fv(projLoc, 1, GL_FALSE, glm::value_ptr(projection));
 
-        glUniform3f(objColourLoc, branchColour.x, branchColour.y, branchColour.z);
-
         /**************** RENDER STUFF ****************/
         proceduralTree->renderTree(branchCylinder, branchSphere, model, modelLoc);
 
@@ -171,16 +163,6 @@ int main()
     // Terminate GLFW, clearing any resources allocated by GLFW.
     glfwTerminate();
     return 0;
-}
-
-
-void updateModelMatrix(float angles, float translationLength, float scaleAmount,
-                       glm::mat4& model, GLint modelLoc) {
-    model = glm::rotate(model, glm::radians(angles), glm::vec3(0,0,1));
-    model = glm::translate(model, glm::vec3(0.f, translationLength, 0.f));
-    model = glm::scale(model, glm::vec3(scaleAmount));
-
-    glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
 }
 
 void processInput(GLFWwindow *window) {
