@@ -118,8 +118,9 @@ int main()
     GLint objColourLoc = glGetUniformLocation(passThroughShader, "faceColour");
 
     /********** Build up tree structure ***********/
+    std::string l_system = "F[+F][-F[-F]F]F[+F][-F]";
     Tree* proceduralTree = new Tree(initialLength/2, 40.f, 0.7f, objColourLoc);
-    proceduralTree->createTreeFromLindenmayerSystem();
+    proceduralTree->createTreeFromLindenmayerSystem(l_system, 1);
 
     /****************************************************/
     /******************* RENDER LOOP ********************/

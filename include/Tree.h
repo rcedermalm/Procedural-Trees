@@ -78,7 +78,7 @@ public:
     ~Tree();
 
     /** Creates the tree from a Lindenmayer system (L-system) **/
-    void createTreeFromLindenmayerSystem();
+    void createTreeFromLindenmayerSystem(std::string axiom, int noOfIterations);
 
     /** Renders the entire tree **/
     void renderTree(MeshObject& branch, MeshObject& split, glm::mat4 model, GLint modelLoc);

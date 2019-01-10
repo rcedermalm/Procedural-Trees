@@ -1,3 +1,4 @@
+#include <vector>
 #include "Tree.h"
 
 Tree::~Tree() {
@@ -13,11 +14,68 @@ void Tree::destroyNode(Node *node) {
     }
 }
 
-void Tree::createTreeFromLindenmayerSystem() {
-    // Test to see if render works
-    root->firstBranch = new Node(root, initialRotationAngle, glm::vec2(0.f, 1.f), initialScaleFactor);
-    root->secondBranch = new Node(root, 0.f, glm::vec2(0.f, 1.f), 1.f);
-    root->firstBranch->firstBranch = new Node(root->firstBranch, initialRotationAngle, glm::vec2(1.f, 0.f), initialScaleFactor);
+void Tree::createTreeFromLindenmayerSystem(std::string axiom, int noOfIterations) {
+
+    // TODO Evaluation of the L-System string using given rules..
+    std::string finalSystem = axiom;
+
+    /**************************************************************/
+    /** Creation of the tree using the evaluated L-System string **/
+
+    Node* current = root;
+    float rotAngle = 0.f;
+    float scaleFactor = 1.f;
+    glm::vec2 rotAxis = glm::vec2(0.f, 1.f);
+    std::vector<Node*> fallbacks;
+
+    for(int i = 0; i < finalSystem.length(); i++){
+        int noOfBranches = current->getNumberOfBranches();
+        switch(finalSystem[i]) {
+            case 'F':
+                std::cout << "F";
+                if(fabs(rotAngle) > EPSILON) {
+                    scaleFactor = initialScaleFactor;
+                }
+                switch(noOfBranches) {
+                    case 0:
+                        current->firstBranch = new Node(current, rotAngle, rotAxis, scaleFactor);
+                        current = current->firstBranch;
+                        break;
+                    case 1:
+                        current->secondBranch = new Node(current, rotAngle, rotAxis, scaleFactor);
+                        current = current->secondBranch;
+                        break;
+                    case 2:
+                        current->thirdBranch = new Node(current, rotAngle, rotAxis, scaleFactor);
+                        current = current->thirdBranch;
+                        break;
+                    default:
+                        break;
+                }
+                rotAngle = 0.f;
+                scaleFactor = 1.f;
+                break;
+            case '+':
+                std::cout << "+";
+                rotAngle = initialRotationAngle;
+                break;
+            case '-':
+                std::cout << "-";
+                rotAngle = -1.f * initialRotationAngle;
+                break;
+            case '[':
+                std::cout << "[";
+                fallbacks.push_back(current);
+                break;
+            case ']':
+                std::cout << "]";
+                current = fallbacks.back();
+                fallbacks.pop_back();
+                break;
+            default:
+                break;
+        }
+    }
 }
 
 void Tree::renderTree(MeshObject& branch, MeshObject& split, glm::mat4 model, GLint modelLoc) {
