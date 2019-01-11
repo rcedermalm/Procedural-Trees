@@ -11,6 +11,7 @@ void Tree::createTreeFromLindenmayerSystem(std::string axiom, std::vector<std::p
     std::string finalSystem = evaluateLindenmayerSystem(axiom, constructors,noOfIterations);
 
     Node* current = root;
+    float random = 0.f;
     float rotAngle = 0.f;
     float scaleFactor = 1.f;
     glm::vec2 rotAxis = glm::vec2(0.f, 1.f);
@@ -21,8 +22,15 @@ void Tree::createTreeFromLindenmayerSystem(std::string axiom, std::vector<std::p
     (*gen).seed(seed2);
 
     for(int i = 0; i < finalSystem.length(); i++){
-        rotAxis.x = (*dis)(*gen);
-        rotAxis.y = (*dis)(*gen);
+        if((*dis)(*gen) < 0.5f ){
+            rotAxis.x = 1;
+            rotAxis.y = 0;
+            random = (*dis)(*gen) * 0.2f;
+        } else {
+            rotAxis.x = 0;
+            rotAxis.y = 1;
+            random = (*dis)(*gen) * -0.2f;
+        }
         int noOfBranches = current->getNumberOfBranches();
         switch(finalSystem[i]) {
             case 'F':
@@ -31,15 +39,15 @@ void Tree::createTreeFromLindenmayerSystem(std::string axiom, std::vector<std::p
                 }
                 switch(noOfBranches) {
                     case 0:
-                        current->firstBranch = new Node(current, rotAngle, rotAxis, scaleFactor);
+                        current->firstBranch = new Node(current, rotAngle, rotAxis, scaleFactor, random);
                         current = current->firstBranch;
                         break;
                     case 1:
-                        current->secondBranch = new Node(current, rotAngle, rotAxis, scaleFactor);
+                        current->secondBranch = new Node(current, rotAngle, rotAxis, scaleFactor, random);
                         current = current->secondBranch;
                         break;
                     case 2:
-                        current->thirdBranch = new Node(current, rotAngle, rotAxis, scaleFactor);
+                        current->thirdBranch = new Node(current, rotAngle, rotAxis, scaleFactor, random);
                         current = current->thirdBranch;
                         break;
                     default:
@@ -49,10 +57,10 @@ void Tree::createTreeFromLindenmayerSystem(std::string axiom, std::vector<std::p
                 scaleFactor = 1.f;
                 break;
             case '+':
-                rotAngle = initialRotationAngle;
+                rotAngle = initialRotationAngle + (*dis)(*gen) * 10;
                 break;
             case '-':
-                rotAngle = -1.f * initialRotationAngle;
+                rotAngle = -1.f * initialRotationAngle - (*dis)(*gen) * 10;
                 break;
             case '[':
                 fallbacks.push_back(current);
@@ -78,6 +86,7 @@ void Tree::renderTree(MeshObject& branch, MeshObject& split, glm::mat4 model, GL
     }
 
     if(root->isLeaf()) {
+
         glUniform3f(objColourLoc, leafColour.x, leafColour.y, leafColour.z);
         updateModelMatrix(0, glm::vec2(0.f, 1.f), LEAF_SIZE, model, modelLoc);
         split.render();
@@ -146,7 +155,7 @@ void Tree::renderNode(Node *current_node, MeshObject &branch, MeshObject &split,
     }
 
     if(current_node->isLeaf()) {
-        glUniform3f(objColourLoc, leafColour.x, leafColour.y, leafColour.z);
+        glUniform3f(objColourLoc, leafColour.x, leafColour.y + current_node->randomness, leafColour.z);
         updateModelMatrix(0, glm::vec2(0.f, 1.f), LEAF_SIZE, model, modelLoc);
         split.render();
         glUniform3f(objColourLoc, branchColour.x, branchColour.y, branchColour.z);

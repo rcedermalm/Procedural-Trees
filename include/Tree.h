@@ -18,7 +18,7 @@
 typedef std::chrono::high_resolution_clock myclock;
 
 const float EPSILON = 1e-4;
-const float LEAF_SIZE = 10.f;
+const float LEAF_SIZE = 8.f;
 
 /********************************************************/
 /********************** Struct Node *********************/
@@ -29,9 +29,9 @@ struct Node {
             : parent(parentIn), firstBranch(nullptr), secondBranch(nullptr), thirdBranch(nullptr),
               rotationAngle(0.f), rotationAxis(glm::vec2(0.f, 1.f)), scaleAmount(1.f) {}
 
-    Node(Node* parentIn, float rotationAngleIn, glm::vec2 rotationAxisIn, float scaleAmountIn )
+    Node(Node* parentIn, float rotationAngleIn, glm::vec2 rotationAxisIn, float scaleAmountIn, float randomnessIn )
             : parent(parentIn), firstBranch(nullptr), secondBranch(nullptr), thirdBranch(nullptr),
-              rotationAngle(rotationAngleIn), rotationAxis(rotationAxisIn), scaleAmount(scaleAmountIn) {}
+              rotationAngle(rotationAngleIn), rotationAxis(rotationAxisIn), scaleAmount(scaleAmountIn), randomness(randomnessIn) {}
 
     bool isLeaf() {
         return firstBranch == nullptr && secondBranch == nullptr && thirdBranch == nullptr;
@@ -64,6 +64,7 @@ struct Node {
     float rotationAngle;
     glm::vec2 rotationAxis;
     float scaleAmount;
+    float randomness;
 };
 
 /********************************************************/
