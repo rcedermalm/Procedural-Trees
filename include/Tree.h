@@ -12,9 +12,13 @@
 #include <glm.hpp>
 #include <gtc/matrix_transform.hpp>
 #include <gtc/type_ptr.hpp>
+#include <random>
+#include <chrono>
+
+typedef std::chrono::high_resolution_clock myclock;
 
 const float EPSILON = 1e-4;
-const float LEAF_SIZE = 5.f;
+const float LEAF_SIZE = 10.f;
 
 /********************************************************/
 /********************** Struct Node *********************/
@@ -72,7 +76,13 @@ public:
     /** Constructor **/
     Tree(float translationLengthIn,  float rotationAngleIn, float scaleFactorIn, GLint objColourLocIn)
             : root(new Node(nullptr)), initialTranslationLength(translationLengthIn),
-              initialRotationAngle(rotationAngleIn), initialScaleFactor(scaleFactorIn), objColourLoc(objColourLocIn) {}
+              initialRotationAngle(rotationAngleIn), initialScaleFactor(scaleFactorIn), objColourLoc(objColourLocIn) {
+
+        beginning = myclock::now();
+        std::random_device rd;
+        gen = new std::mt19937(rd());
+        dis = new std::uniform_real_distribution<float>(0, 1);
+    }
 
     /** Destructor **/
     ~Tree();
@@ -111,6 +121,11 @@ private:
     GLint objColourLoc;
     glm::vec3 branchColour = glm::vec3(102.f/255.f, 51.f/255.f, 0.f);
     glm::vec3 leafColour = glm::vec3(0.f, 102.f/255.f, 0.f);
+
+    // Random generator
+    std::mt19937* gen;
+    std::uniform_real_distribution<float>* dis;
+    myclock::time_point beginning;
 };
 
 #endif //PROCEDURAL_TREES_TREESTRUCTURE_H

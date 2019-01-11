@@ -28,10 +28,10 @@ void scroll_callback(GLFWwindow* window, double xoffset, double yoffset);
 void processInput(GLFWwindow *window);
 
 // Window dimensions
-const GLuint WIDTH = 1000, HEIGHT = 600;
+const GLuint WIDTH = 1920, HEIGHT = 1080;
 
 // Camera variables
-Camera camera(glm::vec3(0.0f, 10.0f, 50.0f));
+Camera camera(glm::vec3(0.0f, 10.0f, 0.0f));
 float lastX = WIDTH / 2.0f;
 float lastY = HEIGHT / 2.0f;
 bool firstMouse = true;
@@ -102,9 +102,9 @@ int main()
 
     /****************** Models ********************/
     MeshObject branchCylinder;
-    branchCylinder.readOBJ("../objects/smallcylinder.obj");
+    branchCylinder.readOBJ("../objects/mediumcylinder06.obj");
 
-    float initialRadius = 0.2f;
+    float initialRadius = 0.6f;
     float initialLength = 1.f;
 
     MeshObject branchSphere;
@@ -116,6 +116,7 @@ int main()
     GLint projLoc = glGetUniformLocation(passThroughShader, "projection");
 
     GLint objColourLoc = glGetUniformLocation(passThroughShader, "faceColour");
+    GLint lightPosLoc = glGetUniformLocation(passThroughShader, "lightPos");
 
     /********** Build up tree structure ***********/
     std::string axiom = "X";
@@ -130,7 +131,7 @@ int main()
     /****************************************************/
     /******************* RENDER LOOP ********************/
     /****************************************************/
-
+    float rotationAngle = 0.f;
     while (!glfwWindowShouldClose(window))
     {
         float currentFrame = glfwGetTime();
@@ -143,7 +144,17 @@ int main()
         glClearColor(0.3f, 0.3f, 0.3f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-        // Create camera and model transformation
+        // Create camera, light and model transformations
+        glm::vec3 lightPos = glm::vec3(40.f, 40.f, 0.f);
+        Camera camera(glm::vec3(0.0f, 10.0f, 0.0f));
+
+        glm::mat4 rotatingModel;
+        rotatingModel = glm::rotate(rotatingModel, glm::radians(currentFrame*10), glm::vec3(0.f, 1.f, 0.f));
+        rotatingModel = glm::translate(rotatingModel, glm::vec3(0.f, 0.f, 40.f));
+
+        camera.Position = glm::vec3(rotatingModel * glm::vec4(camera.Position, 1.0f));
+        lightPos = glm::vec3(rotatingModel * glm::vec4(lightPos, 1.0f));
+
         glm::mat4 model;
         glm::mat4 view = camera.GetViewMatrix();
         glm::mat4 projection = glm::perspective(glm::radians(camera.Zoom), (float)WIDTH/(float)HEIGHT, 0.1f, 100.0f);
@@ -152,6 +163,8 @@ int main()
         glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
         glUniformMatrix4fv(viewLoc, 1, GL_FALSE, glm::value_ptr(view));
         glUniformMatrix4fv(projLoc, 1, GL_FALSE, glm::value_ptr(projection));
+
+        glUniform3f(lightPosLoc, lightPos.x, lightPos.y, lightPos.z);
 
         /**************** RENDER STUFF ****************/
         proceduralTree->renderTree(branchCylinder, branchSphere, model, modelLoc);

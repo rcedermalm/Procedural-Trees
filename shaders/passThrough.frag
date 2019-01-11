@@ -4,13 +4,13 @@ in vec3 FragPosition;
 in vec3 FragNormal;
 
 uniform vec3 faceColour;
+uniform vec3 lightPos;
 
 out vec4 colour;
 
 void main()
 {
     vec3 lightColour = vec3(1.f, 1.f, 1.f);
-    vec3 lightPos = vec3(10.f, 10.0f, 10.0f);
 
     // ambient
     float ambientStrength = 0.1;

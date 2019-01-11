@@ -3,6 +3,8 @@
 
 Tree::~Tree() {
     destroyNode(root);
+    delete gen;
+    delete dis;
 }
 
 void Tree::createTreeFromLindenmayerSystem(std::string axiom, std::vector<std::pair<char, std::string>> constructors, int noOfIterations) {
@@ -14,7 +16,13 @@ void Tree::createTreeFromLindenmayerSystem(std::string axiom, std::vector<std::p
     glm::vec2 rotAxis = glm::vec2(0.f, 1.f);
     std::vector<Node*> fallbacks;
 
+    myclock::duration d = myclock::now() - beginning;
+    unsigned seed2 = d.count();
+    (*gen).seed(seed2);
+
     for(int i = 0; i < finalSystem.length(); i++){
+        rotAxis.x = (*dis)(*gen);
+        rotAxis.y = (*dis)(*gen);
         int noOfBranches = current->getNumberOfBranches();
         switch(finalSystem[i]) {
             case 'F':
