@@ -77,7 +77,7 @@ void Tree::createTreeFromLindenmayerSystem(std::string axiom, std::vector<std::p
 
 void Tree::renderTree(MeshObject& branch, MeshObject& split, glm::mat4 model, GLint modelLoc) {
     glUniform3f(objColourLoc, branchColour.x, branchColour.y, branchColour.z);
-    updateModelMatrix(root->rotationAngle, root->rotationAxis, root->scaleAmount, model, modelLoc);
+    updateModelMatrix(root->rotationAngle, root->rotationAxis, 1.f, model, modelLoc);
     branch.render();
 
     if(!root->hasStraightBranch()){

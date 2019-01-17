@@ -102,20 +102,16 @@ int main()
 
     /****************** Models ********************/
     MeshObject branchCylinder;
-    /*branchCylinder.readOBJ("../objects/cylinder_R04_L05.obj");
-    float initialRadius = 0.4f;
-    float initialLength = 0.5f;*/
-    /*
-    branchCylinder.readOBJ("../objects/cylinder_R06_L05.obj");
-    float initialRadius = 0.6f;
-    float initialLength = 0.5f;*/
+
+    /** Matches with Tree 1-2 **/
     branchCylinder.readOBJ("../objects/mediumcylinder06.obj");
     float initialRadius = 0.6f;
     float initialLength = 1.0f;
-    /*branchCylinder.readOBJ("../objects/cylinder_R01_L02.obj");
-    float initialRadius = 0.1f;
-    float initialLength = 0.2f;*/
 
+    /** Matches with Tree 3 **/
+    /*branchCylinder.readOBJ("../objects/cylinder_R06_L05.obj");
+    float initialRadius = 0.6f;
+    float initialLength = 0.5f;*/
 
     MeshObject branchSphere;
     branchSphere.createSphere(initialRadius * 1.1f, 4);
@@ -129,6 +125,8 @@ int main()
     GLint lightPosLoc = glGetUniformLocation(passThroughShader, "lightPos");
 
     /********** Build up tree structure ***********/
+
+    /*** Tree 1 ***/
     std::string axiom = "X";
     std::vector<std::pair<char, std::string>> constructors = std::vector<std::pair<char, std::string>>();
     constructors.push_back( std::pair<char, std::string>('F', "FF"));
@@ -136,8 +134,9 @@ int main()
 
     Tree* proceduralTree = new Tree(initialLength/2,  22.5f, 0.7f, objColourLoc);
     proceduralTree->createTreeFromLindenmayerSystem(axiom, constructors, 5);
-/*
-    std::string axiom = "X";
+
+    /*** Tree 2 ***/
+    /*std::string axiom = "X";
     std::vector<std::pair<char, std::string>> constructors = std::vector<std::pair<char, std::string>>();
     constructors.push_back( std::pair<char, std::string>('X', "F[+X]F[-X]+X"));
     constructors.push_back( std::pair<char, std::string>('F', "FF"));
@@ -145,14 +144,14 @@ int main()
     Tree* proceduralTree = new Tree(initialLength/2,  20.f, 0.8f, objColourLoc);
     proceduralTree->createTreeFromLindenmayerSystem(axiom, constructors, 6);*/
 
+    /*** Tree 3 ***/
     /*std::string axiom = "X";
     std::vector<std::pair<char, std::string>> constructors = std::vector<std::pair<char, std::string>>();
     constructors.push_back( std::pair<char, std::string>('X', "F[+X][-X]FX"));
     constructors.push_back( std::pair<char, std::string>('F', "FF"));
 
-    Tree* proceduralTree = new Tree(initialLength/2,  25.7f, 0.7f, objColourLoc);
-    proceduralTree->createTreeFromLindenmayerSystem(axiom, constructors, 7);
-    */
+    Tree* proceduralTree = new Tree(initialLength/2,  25.7f, 0.8f, objColourLoc);
+    proceduralTree->createTreeFromLindenmayerSystem(axiom, constructors, 7);*/
 
     /****************************************************/
     /******************* RENDER LOOP ********************/
